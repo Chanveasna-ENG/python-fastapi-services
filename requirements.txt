@@ -1,0 +1,4 @@
+fastapi
+uvicorn
+requests
+# Add more here as you expand (e.g., pandas, openai, etc.)
