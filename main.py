@@ -1,7 +1,7 @@
 # main.py
 
 from fastapi import FastAPI
-import requests # to talk to the Kokoro container
+import requests
 import os
 
 app = FastAPI(title="Python-FastAPI-Services")
