@@ -8,7 +8,7 @@ KOKORO_SERVICE_URL = os.getenv("KOKORO_URL")
 
 @app.get("/")
 def read_root():
-    return {"status": "online", "message": "Services are running!"}
+    return {"status": "online", "message": "Services are running!!!"}
 
 # Example 1: A wrapper for Kokoro
 @app.post("/read")
