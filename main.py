@@ -12,7 +12,7 @@ KOKORO_SERVICE_URL = os.getenv("KOKORO_URL")
 def read_root():
     return {"status": "online", "message": "Services are running!!!"}
 
-# Example 1: A wrapper for Kokoro
+# A wrapper for Kokoro
 @app.post("/read")
 def say_hello(text: str, voice: str="bf_emma"):
 
