@@ -4,7 +4,7 @@ import os
 import httpx
 import requests
 from fastapi import FastAPI, Response, HTTPException
-from .types import SpeechRequest, ExtractTextRequest
+from my_types import SpeechRequest, ExtractTextRequest
 from utils import html2text, pdf2text
 
 
