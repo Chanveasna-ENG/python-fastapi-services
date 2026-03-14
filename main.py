@@ -1,10 +1,11 @@
 # main.py
 
 import os
+import re
 import httpx
 import requests
 from fastapi import FastAPI, Response, HTTPException
-from my_types import SpeechRequest, ExtractTextRequest
+from my_types import SpeechRequest, ExtractTextRequest, SplitTextRequest
 from utils import html2text, pdf2text
 
 
@@ -62,3 +63,23 @@ async def read_from_file(request: ExtractTextRequest):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/split-text")
+def get_text_chunks(request: SplitTextRequest):
+    
+    text = request.text 
+    sentences = re.split(r'(?<=[.!?]) +', text)
+    chunks = []
+    current_chunk = ""
+
+    for sentence in sentences:
+        if len(current_chunk) + len(sentence) <= request.text_length:
+            current_chunk += " " + sentence
+        else:
+            chunks.append(current_chunk.strip())
+            current_chunk = sentence
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+    
+    return {"chunks": chunks}
