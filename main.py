@@ -82,4 +82,4 @@ def get_text_chunks(request: SplitTextRequest):
     if current_chunk:
         chunks.append(current_chunk.strip())
     
-    return chunks
+    return [chunks]
