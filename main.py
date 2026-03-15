@@ -26,7 +26,7 @@ def generate_speech(request: SpeechRequest): # Use the model here
     response = requests.post(KOKORO_SERVICE_URL, json={
         "model": "kokoro",
         "input": request.text,
-        "voice": request.voice
+        "voice": "jf_nezumi" if request.language == "jp" else "bf_emma" 
     })
     
     return Response(content=response.content, media_type="audio/mpeg")
@@ -50,7 +50,7 @@ async def read_from_file(request: ExtractTextRequest):
         if file_type == "text/plain":
             content = response.text
             
-        elif file_type == "link":
+        elif file_type == "url":
             content = html2text(response.text)
 
         elif file_type == "application/pdf":
