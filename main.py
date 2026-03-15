@@ -26,7 +26,7 @@ def generate_speech(request: SpeechRequest): # Use the model here
     response = requests.post(KOKORO_SERVICE_URL, json={
         "model": "kokoro",
         "input": request.text,
-        "voice": "jf_nezumi" if request.language == "jp" else "bf_emma" 
+        "voice": "jf_alpha" if request.language == "jp" else "bf_emma" 
     })
     
     return Response(content=response.content, media_type="audio/mpeg")
