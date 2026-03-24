@@ -61,14 +61,19 @@ async def read_from_file(request: ExtractTextRequest):
             # 1. Disable auto-redirects to prevent bypass
             response = await client.get(url, headers=headers, follow_redirects=False)
 
-            # 2. Manual Redirect Validation
-            if response.is_redirect:
+            # 2. Manual Redirect Validation (up to N redirects)
+            max_redirects = 5
+            for _ in range(max_redirects):
+                if not response.is_redirect:
+                    break
                 redirect_url = response.headers.get("Location")
+                # Resolve relative URLs against the current request URL
+                redirect_url = str(response.url.join(redirect_url))
                 if not is_safe_url(redirect_url):
                     raise HTTPException(status_code=403, detail="Redirect blocked by SSRF protection.")
-                
-                # If safe, fetch the redirect target
                 response = await client.get(redirect_url, headers=headers, follow_redirects=False)
+            else:
+                raise HTTPException(status_code=400, detail="Too many redirects.")
 
             response.raise_for_status()
             
