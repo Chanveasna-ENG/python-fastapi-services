@@ -5,7 +5,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies (sometimes needed for audio/science libs)
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Security setup (User creation + Permissions in one go)
-RUN groupadd -r appgroup && --no-install-recommends \
+RUN groupadd -r appgroup && \
     useradd -r -g appgroup -d /app -s /sbin/nologin appuser && \
     chown -R appuser:appgroup /app
 
