@@ -19,8 +19,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of your app's code
 COPY . .
 
+# Security setup (User creation + Permissions in one go)
+RUN groupadd -r appgroup && \
+    useradd -r -g appgroup -d /app -s /sbin/nologin appuser && \
+    chown -R appuser:appgroup /app
+
 # Expose the port FastAPI will run on
 EXPOSE 8000
+
+# Switch to the non-root user
+USER appuser
 
 # Start the FastAPI server using Uvicorn
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
