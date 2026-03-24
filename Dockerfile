@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Security setup (User creation + Permissions in one go)
-RUN groupadd -r appgroup && \
+RUN groupadd -r appgroup && --no-install-recommends \
     useradd -r -g appgroup -d /app -s /sbin/nologin appuser && \
     chown -R appuser:appgroup /app
 
