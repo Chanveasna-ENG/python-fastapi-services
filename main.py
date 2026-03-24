@@ -94,7 +94,7 @@ async def read_from_file(request: ExtractTextRequest):
         raise
     # FIX: Catch httpx specific errors and return 502
     except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Upstream request failed: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"Upstream request failed.")
     # FIX: Everything else is a 500
     except Exception as e:
         raise HTTPException(status_code=500, detail="Unexpected extraction error.")
