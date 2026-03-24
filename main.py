@@ -7,6 +7,7 @@ import requests
 from fastapi import FastAPI, Response, HTTPException
 from my_types import SpeechRequest, ExtractTextRequest, SplitTextRequest
 from utils import html2text, pdf2text
+from validator import is_safe_url
 
 
 app = FastAPI(title="Python-FastAPI-Services")
@@ -16,7 +17,12 @@ def read_root():
     return {"status": "online", "message": "Services are running!!!"}
 
 
-@app.post("/read")
+@app.post(
+    "/read",
+    responses={
+        500: {"description": "Internal server error, specifically KOKORO_URL is missing."},
+    }
+)
 def generate_speech(request: SpeechRequest): # Use the model here
     KOKORO_SERVICE_URL = os.getenv("KOKORO_URL")
     
@@ -32,11 +38,23 @@ def generate_speech(request: SpeechRequest): # Use the model here
     return Response(content=response.content, media_type="audio/mpeg")
 
 
-@app.post("/extract-text")
+@app.post(
+    "/extract-text",
+    responses={
+        400: {"description": "Unsupported file_type provided or URL validation failed."},
+        403: {"description": "Access to internal or restricted networks is forbidden."},
+        500: {"description": "Internal server error during extraction."},
+        502: {"description": "Upstream request failed."}
+    }
+)
 async def read_from_file(request: ExtractTextRequest):
     url = request.file_url
     file_type = request.file_type
     
+    # Execute SSRF Protection
+    if not is_safe_url(url):
+         raise HTTPException(status_code=403, detail="Access to internal or restricted networks is forbidden.")
+
     try:
         # 1. Download the target file/webpage
         async with httpx.AsyncClient() as client:
