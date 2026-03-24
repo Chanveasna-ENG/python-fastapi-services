@@ -191,6 +191,10 @@ idna==3.11 \
     #   anyio
     #   httpx
     #   requests
+packaging==26.0 \
+    --hash=sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4 \
+    --hash=sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529
+    # via wheel
 pillow==12.1.1 \
     --hash=sha256:02f84dfad02693676692746df05b89cf25597560db2857363a208e393429f5e9 \
     --hash=sha256:0330d233c1a0ead844fc097a7d16c0abff4c12e856c0b325f231820fee1f39da \
@@ -329,6 +333,10 @@ requests==2.32.5 \
     #   google-auth
     #   google-genai
     #   python-fastapi-services
+setuptools==82.0.1 \
+    --hash=sha256:7d872682c5d01cfde07da7bccc7b65469d3dca203318515ada1de5eda35efbf9 \
+    --hash=sha256:a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb
+    # via python-fastapi-services
 sniffio==1.3.1 \
     --hash=sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2 \
     --hash=sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc
@@ -400,3 +408,7 @@ websockets==16.0 \
     --hash=sha256:e6578ed5b6981005df1860a56e3617f14a6c307e6a71b4fff8c48fdc50f3ed2c \
     --hash=sha256:fd3cb4adb94a2a6e2b7c0d8d05cb94e6f1c81a0cf9dc2694fb65c7e8d94c42e4
     # via google-genai
+wheel==0.46.3 \
+    --hash=sha256:4b399d56c9d9338230118d705d9737a2a468ccca63d5e813e2a4fc7815d8bc4d \
+    --hash=sha256:e3e79874b07d776c40bd6033f8ddf76a7dad46a7b8aa1b2787a83083519a1803
+    # via python-fastapi-services
