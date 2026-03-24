@@ -7,7 +7,10 @@ WORKDIR /app
 # Install system dependencies (sometimes needed for audio/science libs)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    curl \
+    python3-dev \
+    libffi-dev \
+    libjpeg-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file first (this speeds up rebuilding)
