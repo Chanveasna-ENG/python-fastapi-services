@@ -2,6 +2,7 @@ import socket
 import ipaddress
 from urllib.parse import urlparse
 
+
 def is_safe_url(url: str) -> bool:
     try:
         parsed = urlparse(url)
