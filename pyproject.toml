@@ -13,5 +13,7 @@ dependencies = [
     "pymupdf>=1.27.2",
     "python-dotenv>=1.2.2",
     "requests>=2.32.5",
+    "setuptools>=79.0.2",
     "uvicorn>=0.41.0",
+    "wheel>=0.46.2",
 ]

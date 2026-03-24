@@ -1,5 +1,5 @@
-# Use a lightweight Python image
-FROM python:3.11-slim
+# Stage 1: Use a lightweight Python image for building and installing dependencies
+FROM python:3.11-slim AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -19,13 +19,23 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Stage 2: Create the final, minimal image
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY --from=builder /install /usr/local
+
 # Copy the rest of your app's code
 COPY . .
 
 # Security setup (User creation + Permissions in one go)
 RUN groupadd -r appgroup && \
     useradd -r -g appgroup -d /app -s /sbin/nologin appuser && \
-    chown -R appuser:appgroup /app
+    chown -R appuser:appgroup /app \
+    # Update and upgrade system dependencies
+    apt-get update && apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
 
 # Expose the port FastAPI will run on
 EXPOSE 8000
