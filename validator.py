@@ -1,8 +1,8 @@
 import socket
-
+import ipaddress
+from urllib.parse import urlparse
 
 def is_safe_url(url: str) -> bool:
-    """Validates that a URL does not point to an internal or restricted IP address."""
     try:
         parsed = urlparse(url)
         if parsed.scheme not in ("http", "https"):
@@ -12,15 +12,18 @@ def is_safe_url(url: str) -> bool:
         if not hostname:
             return False
 
-        # Resolve the domain to an IP address
-        ip_str = socket.gethostbyname(hostname)
-        ip = ipaddress.ip_address(ip_str)
+        # Get all possible IP addresses for this host (v4 and v6)
+        # This prevents DNS Rebinding and handles IPv6-only sites
+        addr_info = socket.getaddrinfo(hostname, None)
+        
+        for info in addr_info:
+            ip_str = info[4][0]
+            ip = ipaddress.ip_address(ip_str)
 
-        # Block private (e.g., 192.168.X.X), loopback (127.0.0.1), and link-local IPs
-        if ip.is_private or ip.is_loopback or ip.is_link_local:
-            return False
+            # If ANY resolved IP is internal/private, the whole URL is unsafe
+            if ip.is_private or ip.is_loopback or ip.is_link_local:
+                return False
             
         return True
     except (socket.gaierror, ValueError):
-        # Fails closed if the hostname cannot be resolved or IP is invalid
         return False

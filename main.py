@@ -41,46 +41,58 @@ def generate_speech(request: SpeechRequest): # Use the model here
 @app.post(
     "/extract-text",
     responses={
-        400: {"description": "Unsupported file_type provided or URL validation failed."},
-        403: {"description": "Access to internal or restricted networks is forbidden."},
-        500: {"description": "Internal server error during extraction."},
-        502: {"description": "Upstream request failed."}
+        400: {"description": "Unsupported file_type."},
+        403: {"description": "SSRF Protection: URL or Redirect blocked."},
+        500: {"description": "Internal server error."},
+        502: {"description": "Upstream website returned an error."}
     }
 )
 async def read_from_file(request: ExtractTextRequest):
     url = request.file_url
     file_type = request.file_type
     
-    # Execute SSRF Protection
     if not is_safe_url(url):
-         raise HTTPException(status_code=403, detail="Access to internal or restricted networks is forbidden.")
+         raise HTTPException(status_code=403, detail="Initial URL blocked by SSRF protection.")
 
     try:
-        # 1. Download the target file/webpage
         async with httpx.AsyncClient() as client:
-            # Add headers to bypass basic bot-protection on news sites
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            response = await client.get(url, headers=headers, follow_redirects=True)
+            
+            # 1. Disable auto-redirects to prevent bypass
+            response = await client.get(url, headers=headers, follow_redirects=False)
+
+            # 2. Manual Redirect Validation
+            if response.is_redirect:
+                redirect_url = response.headers.get("Location")
+                if not is_safe_url(redirect_url):
+                    raise HTTPException(status_code=403, detail="Redirect blocked by SSRF protection.")
+                
+                # If safe, fetch the redirect target
+                response = await client.get(redirect_url, headers=headers, follow_redirects=False)
+
             response.raise_for_status()
             
         content = ""
-
         if file_type == "text/plain":
             content = response.text
-            
         elif file_type == "url":
             content = html2text(response.text)
-
         elif file_type == "application/pdf":
             content = pdf2text(response.content)
-                    
         else:
-            raise HTTPException(status_code=400, detail="Unsupported file_type provided.")
+            raise HTTPException(status_code=400, detail="Unsupported file_type.")
             
         return Response(content=content, media_type="text/plain")
         
+    # FIX: Allow our specific HTTPExceptions (400, 403) to pass through
+    except HTTPException:
+        raise
+    # FIX: Catch httpx specific errors and return 502
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=f"Upstream request failed: {str(e)}")
+    # FIX: Everything else is a 500
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Unexpected extraction error.")
 
 
 @app.post("/split-text")
