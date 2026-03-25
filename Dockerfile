@@ -1,46 +1,47 @@
-# Stage 1: Use a lightweight Python image for building and installing dependencies
+# --- STAGE 1: Builder ---
 FROM python:3.11-slim AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Install system dependencies (sometimes needed for audio/science libs)
+# Install build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    python3-dev \
     libffi-dev \
     libjpeg-dev \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file first (this speeds up rebuilding)
+# Create a Virtual Environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install dependencies into the venv
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
-# Stage 2: Create the final, minimal image
+# --- STAGE 2: Runner ---
 FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY --from=builder /install /usr/local
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# Copy the rest of your app's code
+COPY --from=builder /opt/venv /opt/venv
+
+ENV PATH="/opt/venv/bin:$PATH"
+
 COPY . .
 
-# Security setup (User creation + Permissions in one go)
+# Security Hardening
 RUN groupadd -r appgroup && \
     useradd -r -g appgroup -d /app -s /sbin/nologin appuser && \
     chown -R appuser:appgroup /app && \
     apt-get update && apt-get upgrade -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Expose the port FastAPI will run on
 EXPOSE 8000
 
-# Switch to the non-root user
 USER appuser
 
-# Start the FastAPI server using Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
