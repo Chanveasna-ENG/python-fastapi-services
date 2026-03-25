@@ -32,8 +32,7 @@ COPY . .
 # Security setup (User creation + Permissions in one go)
 RUN groupadd -r appgroup && \
     useradd -r -g appgroup -d /app -s /sbin/nologin appuser && \
-    chown -R appuser:appgroup /app \
-    # Update and upgrade system dependencies
+    chown -R appuser:appgroup /app && \
     apt-get update && apt-get upgrade -y && \
     rm -rf /var/lib/apt/lists/*
 
