@@ -13,9 +13,10 @@ from middleware import SecurityHeadersMiddleware
 
 app = FastAPI(title="Python-FastAPI-Services")
 
+app.add_middleware(SecurityHeadersMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
-    SecurityHeadersMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
