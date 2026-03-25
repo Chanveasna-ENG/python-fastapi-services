@@ -5,12 +5,22 @@ import re
 import httpx
 import requests
 from fastapi import FastAPI, Response, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from my_types import SpeechRequest, ExtractTextRequest, SplitTextRequest
 from utils import html2text, pdf2text
 from validator import is_safe_url
-
+from middleware import SecurityHeadersMiddleware
 
 app = FastAPI(title="Python-FastAPI-Services")
+
+app.add_middleware(SecurityHeadersMiddleware)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
